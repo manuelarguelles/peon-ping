@@ -1,7 +1,7 @@
 ---
 name: personaje
 description: Switch peon-ping voice pack between Spanish Warcraft III characters. Use when user wants to change between the three Spanish voice packs. Accepts Spanish aliases (peon/orco, acolito, campesino) and pack names (peon_es, acolyte_es, peasant_es).
-user_invocable: true
+user-invocable: true
 ---
 
 # /personaje
