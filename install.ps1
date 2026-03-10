@@ -149,10 +149,25 @@ foreach ($packInfo in $packsToInstall) {
     New-Item -ItemType Directory -Path $soundsDir -Force | Out-Null
 
     # Download manifest
+    # Some community packs tag without 'v' prefix (e.g. "1.0.2" instead of "v1.0.2").
+    # If the first attempt fails, retry stripping the leading 'v' from the ref.
     $manifestPath = Join-Path $packDir "openpeon.json"
+    $manifestDownloaded = $false
     try {
         Invoke-WebRequest -Uri "$packBase/openpeon.json" -OutFile $manifestPath -UseBasicParsing -ErrorAction Stop
+        $manifestDownloaded = $true
     } catch {
+        if ($sourceRef -match '^v\d') {
+            $sourceRefStripped = $sourceRef.TrimStart('v')
+            $packBaseStripped = "https://raw.githubusercontent.com/$sourceRepo/$sourceRefStripped/$sourcePath"
+            try {
+                Invoke-WebRequest -Uri "$packBaseStripped/openpeon.json" -OutFile $manifestPath -UseBasicParsing -ErrorAction Stop
+                $packBase = $packBaseStripped
+                $manifestDownloaded = $true
+            } catch {}
+        }
+    }
+    if (-not $manifestDownloaded) {
         Write-Host "  [$packName] Failed to download manifest - skipping" -ForegroundColor Yellow
         $failedPacks++
         continue
